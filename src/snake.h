@@ -18,7 +18,6 @@ private:
     std::vector <CPoint> snake;
 
     void reset();
-    void paint_help();
     void paint_snake();
     void addFood();
     void moves();

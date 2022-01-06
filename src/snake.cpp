@@ -45,21 +45,6 @@ void CSnake::paint_snake()
     }
 }
 
-void CSnake::paint_help()
-{
-    int  y = geom.topleft.y + 4, x = geom.topleft.x + 3;
-    gotoyx(y++, x);
-    printl("h - toggle help information");
-    gotoyx(y++, x);
-    printl("p - toggle pause/play mode");
-    gotoyx(y++, x);
-    printl("r - restart game");
-    gotoyx(y++, x); x+=9;
-    printl("arrows - move snake (in play mode) or");
-    gotoyx(y, x);
-    printl("move window (in pause mode)");
-}
-
 CSnake::CSnake(CRect r, char _c): CFramedWindow(r, _c)
 {
     srand(time(NULL));
@@ -71,8 +56,19 @@ void CSnake::paint()
 {
     CFramedWindow::paint();
 
-    if(help)
-        paint_help();
+    if(help) {
+        int  y = geom.topleft.y + 4, x = geom.topleft.x + 3;
+        gotoyx(y++, x);
+        printl("h - toggle help information");
+        gotoyx(y++, x);
+        printl("p - toggle pause/play mode");
+        gotoyx(y++, x);
+        printl("r - restart game");
+        gotoyx(y++, x); x+=9;
+        printl("arrows - move snake (in play mode) or");
+        gotoyx(y, x);
+        printl("move window (in pause mode)");
+    }
 
     if(!alive) {
         gotoyx(geom.topleft.y + 1, geom.topleft.x + 1);
@@ -101,6 +97,7 @@ void CSnake::moves()
 {
     if(help || pause) return;
 
+    CPoint last = snake.back();
     for (unsigned long i = snake.size() - 1; i > 0; i--)
         snake[i] = snake[i - 1];
 
@@ -116,12 +113,17 @@ void CSnake::moves()
     else if(snake[0].x == geom.size.x - 1) snake[0].x = 1;
     else if(snake[0].y == geom.size.y - 1) snake[0].y = 1;
 
-
     for (unsigned int i = 1; i < snake.size(); i++) {
         if (snake[0] == snake[i]) {
             alive = false;
             return;
         }
+    }
+
+    if(snake[0] == food) {
+        level++;
+        snake.push_back(last);
+        addFood();
     }
 }
 
