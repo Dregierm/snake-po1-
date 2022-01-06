@@ -25,8 +25,11 @@ void CSnake::reset()
     alive = true;
     help = pause = false;
     level = 0;
+    speed = 120;
     go = KEY_RIGHT;
     snake.clear();
+
+    timeout(speed);
 
     snake.push_back(CPoint(4, 2));
     snake.push_back(CPoint(3, 2));
@@ -55,6 +58,19 @@ CSnake::CSnake(CRect r, char _c): CFramedWindow(r, _c)
 void CSnake::paint()
 {
     CFramedWindow::paint();
+    if(!alive) {
+        gotoyx(geom.topleft.y + 1, geom.topleft.x + 1);
+        printl("GAME OVER, result: %d", level);
+        return;
+    }
+
+    gotoyx(geom.topleft.y - 1, geom.topleft.x);
+    printl("| LEVEL: %d |", level);
+
+    paint_snake();
+
+    gotoyx(food.y + geom.topleft.y, food.x + geom.topleft.x);
+    printc('O');
 
     if(help) {
         int  y = geom.topleft.y + 4, x = geom.topleft.x + 3;
@@ -70,27 +86,12 @@ void CSnake::paint()
         printl("move window (in pause mode)");
     }
 
-    if(!alive) {
-        gotoyx(geom.topleft.y + 1, geom.topleft.x + 1);
-        printl("GAME OVER, result: %d", level);
-        return;
-    }
-
     if(pause) {
         gotoyx(geom.topleft.y + geom.size.y/2, geom.topleft.x + geom.size.x/2 - strlen("**** PAUSE ****")/2);
         printl("**** PAUSE ****");
         gotoyx(geom.topleft.y + geom.size.y/2 + 1, geom.topleft.x + geom.size.x/2 - strlen("p - continue")/2);
         printl("p - continue");
-        return;
     }
-
-    gotoyx(geom.topleft.y - 1, geom.topleft.x);
-    printl("| LEVEL: %d |", level);
-
-    paint_snake();
-
-    gotoyx(food.y + geom.topleft.y, food.x + geom.topleft.x);
-    printc('O');
 }
 
 void CSnake::moves()
@@ -124,6 +125,11 @@ void CSnake::moves()
         level++;
         snake.push_back(last);
         addFood();
+
+        if(speed > 15) {
+            speed-=5;
+            timeout(speed);
+        }
     }
 }
 

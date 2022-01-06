@@ -13,6 +13,7 @@ private:
     bool help;
     bool alive;
     int go;
+    int speed;
 
     CPoint food;
     std::vector <CPoint> snake;
