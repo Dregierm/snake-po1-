@@ -61,6 +61,8 @@ void CSnake::paint()
     if(!alive) {
         gotoyx(geom.topleft.y + 1, geom.topleft.x + 1);
         printl("GAME OVER, result: %d", level);
+        gotoyx(geom.topleft.y + 2, geom.topleft.x + 1);
+        printl("r - start again", level);
         return;
     }
 
@@ -131,6 +133,10 @@ void CSnake::moves()
             timeout(speed);
         }
     }
+
+    update_screen();
+    paint();
+    refresh();
 }
 
 bool CSnake::handleEvent(int c)
@@ -163,7 +169,7 @@ bool CSnake::handleEvent(int c)
             case KEY_RIGHT: if(go != KEY_LEFT)  {go = KEY_RIGHT;  return true;}
         }
     }
-    else CFramedWindow::handleEvent(c);
+    else return CFramedWindow::handleEvent(c);
 
     return true;
 }
