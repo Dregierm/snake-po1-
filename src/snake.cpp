@@ -13,7 +13,7 @@ void CSnake::addFood()
     {
         temp = CPoint(rand() % (geom.size.x - 2) + 1, rand() % (geom.size.y - 2) + 1);
         for(auto &s: snake)
-            if(!(s.x == temp.x && s.y == temp.y)) {
+            if(!(s == temp)) {
                 food = temp;
                 return;
             }
@@ -25,11 +25,12 @@ void CSnake::reset()
     alive = true;
     help = pause = false;
     level = 0;
+    go = KEY_RIGHT;
     snake.clear();
 
-    snake.push_back(CPoint(4, 2)); //head *
-    snake.push_back(CPoint(3, 2)); //tail
-    snake.push_back(CPoint(2, 2)); //tail
+    snake.push_back(CPoint(4, 2));
+    snake.push_back(CPoint(3, 2));
+    snake.push_back(CPoint(2, 2));
     addFood();
 }
 
@@ -96,8 +97,38 @@ void CSnake::paint()
     printc('O');
 }
 
+void CSnake::moves()
+{
+    if(help || pause) return;
+
+    for (unsigned long i = snake.size() - 1; i > 0; i--)
+        snake[i] = snake[i - 1];
+
+    switch (go) {
+        case KEY_UP:    snake[0].y -= 1;  break;
+        case KEY_DOWN:  snake[0].y += 1;  break;
+        case KEY_LEFT:  snake[0].x -= 1;  break;
+        case KEY_RIGHT: snake[0].x += 1;  break;
+    }
+
+    if(snake[0].x == 0) snake[0].x = geom.size.x - 2;
+    else if(snake[0].y == 0) snake[0].y = geom.size.y - 2;
+    else if(snake[0].x == geom.size.x - 1) snake[0].x = 1;
+    else if(snake[0].y == geom.size.y - 1) snake[0].y = 1;
+
+
+    for (unsigned int i = 1; i < snake.size(); i++) {
+        if (snake[0] == snake[i]) {
+            alive = false;
+            return;
+        }
+    }
+}
+
 bool CSnake::handleEvent(int c)
 {
+    moves();
+
     if( tolower(c) == 'p' ) {
         pause = !pause;
         return true;
@@ -108,12 +139,24 @@ bool CSnake::handleEvent(int c)
         return true;
     }
 
-   /* if(!pause) {
-        switch (key) {
-            case KEY_UP:
-        }
-    }*/
+    if( tolower(c) == 'r' ) {
+        reset();
+        return true;
+    }
 
-    return CFramedWindow::handleEvent(c);
+    if( tolower(c) == '\t' )
+        pause = true;
+
+    if(!pause && !help && alive) {
+        switch (c) { //180'
+            case KEY_UP:    if(go != KEY_DOWN)  {go = KEY_UP;     return true;}
+            case KEY_DOWN:  if(go != KEY_UP)    {go = KEY_DOWN;   return true;}
+            case KEY_LEFT:  if(go != KEY_RIGHT) {go = KEY_LEFT;   return true;}
+            case KEY_RIGHT: if(go != KEY_LEFT)  {go = KEY_RIGHT;  return true;}
+        }
+    }
+    else CFramedWindow::handleEvent(c);
+
+    return true;
 }
 

@@ -12,6 +12,7 @@ private:
     bool pause;
     bool help;
     bool alive;
+    int go;
 
     CPoint food;
     std::vector <CPoint> snake;
@@ -20,6 +21,7 @@ private:
     void paint_help();
     void paint_snake();
     void addFood();
+    void moves();
 public:
     CSnake(CRect r, char _c = ' ');
 
